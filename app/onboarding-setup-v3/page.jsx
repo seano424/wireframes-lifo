@@ -462,6 +462,36 @@ const OVERRIDES = [
   },
 ]
 
+const NOTIFICATION_RULES = [
+  {
+    id: 1,
+    name: 'Dairy & Eggs',
+    type: 'category',
+    threshold: 5,
+    action: 'discount',
+    status: true,
+    products: 24,
+  },
+  {
+    id: 2,
+    name: 'Bakery',
+    type: 'category',
+    threshold: 2,
+    action: 'donate',
+    status: true,
+    products: 18,
+  },
+  {
+    id: 3,
+    name: 'Sourdough Bread 400g',
+    type: 'product',
+    threshold: 3,
+    action: 'discount',
+    status: false,
+    products: 1,
+  },
+]
+
 // ——— Shared UI Components ————————————————————————————
 
 function Toggle({ enabled, onChange, size = 'default' }) {
@@ -1063,34 +1093,34 @@ export function BatchAutomationSection({
 // SECTION 3: NOTIFICATION RULES (Future Feature)
 // ═══════════════════════════════════════════════════════════════
 
-export function NotificationRulesSection({ standalone = false }) {
-  return (
-    <SectionCard
-      icon="bell"
-      title="Notification Rules"
-      subtitle="Get alerts when batches are approaching expiry"
-      comingSoon
-      defaultOpen={false}
-      standalone={standalone}
-    >
-      <div className="p-6">
-        <div className="bg-gray-50 rounded-xl p-4 text-center">
-          <div className="bg-gray-100 p-3 rounded-2xl inline-flex mb-3">
-            {I.bell('w-5 h-5 text-gray-400')}
-          </div>
-          <p className="text-sm font-medium text-gray-600">
-            Notification rules are coming soon
-          </p>
-          <p className="text-xs text-gray-400 mt-1 max-w-sm mx-auto">
-            Configure automatic alerts when products reach a certain number of
-            days before expiry. Get discount or donation recommendations at the
-            right time.
-          </p>
-        </div>
-      </div>
-    </SectionCard>
-  )
-}
+// export function NotificationRulesSection({ standalone = false }) {
+//   return (
+//     <SectionCard
+//       icon="bell"
+//       title="Notification Rules"
+//       subtitle="Get notifications when batches are approaching expiry"
+//       comingSoon
+//       defaultOpen={false}
+//       standalone={standalone}
+//     >
+//       <div className="p-6">
+//         <div className="bg-gray-50 rounded-xl p-4 text-center">
+//           <div className="bg-gray-100 p-3 rounded-2xl inline-flex mb-3">
+//             {I.bell('w-5 h-5 text-gray-400')}
+//           </div>
+//           <p className="text-sm font-medium text-gray-600">
+//             Notification rules are coming soon
+//           </p>
+//           <p className="text-xs text-gray-400 mt-1 max-w-sm mx-auto">
+//             Configure automatic alerts when products reach a certain number of
+//             days before expiry. Get discount or donation recommendations at the
+//             right time.
+//           </p>
+//         </div>
+//       </div>
+//     </SectionCard>
+//   )
+// }
 
 // ═══════════════════════════════════════════════════════════════
 // SECTION 4: PRODUCT OVERRIDES
@@ -1256,6 +1286,184 @@ function ChecklistItemDark({ done, label, optional }) {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// Notification Rules Section
+// ═══════════════════════════════════════════════════════════════
+
+function NotificationRulesSection({
+  rules,
+  setRules,
+  showAddForm,
+  setShowAddForm,
+}) {
+  const activeCount = rules.filter((r) => r.status).length
+
+  const toggleRule = (id) => {
+    setRules(rules.map((r) => (r.id === id ? { ...r, status: !r.status } : r)))
+  }
+
+  const deleteRule = (id) => {
+    setRules(rules.filter((r) => r.id !== id))
+  }
+
+  return (
+    <SectionCard
+      icon="zap"
+      title="Notification Rules"
+      subtitle="Get notifications when batches are approaching expiry"
+      badge={activeCount > 0 ? `${activeCount} active` : null}
+    >
+      <div className="p-6">
+        <div className="bg-gray-50 rounded-xl p-4 text-center">
+          <div className="bg-gray-100 p-3 rounded-2xl inline-flex mb-3">
+            {I.bell('w-5 h-5 text-gray-400')}
+          </div>
+          <p className="text-sm font-medium text-gray-600">
+            Notification rules are coming soon
+          </p>
+          <p className="text-xs text-gray-400 mt-1 max-w-sm mx-auto">
+            Configure automatic alerts when products reach a certain number of
+            days before expiry. Get discount or donation recommendations at the
+            right time.
+          </p>
+        </div>
+      </div>
+
+      {rules.length === 0 && !showAddForm ? (
+        <EmptyState
+          icon="zap"
+          title="No notification rules yet"
+          description="LIFO will notify you manually for each expiring batch. Add rules to automate discount and donation recommendations."
+          action="Add first notification rule"
+          onAction={() => setShowAddForm(true)}
+        />
+      ) : (
+        <div className="opacity-50 border border-gray-100 rounded-xl p-4">
+          <div className="divide-y divide-gray-50">
+            {rules.map((rule) => (
+              <div
+                key={rule.id}
+                className="px-6 py-3.5 flex items-center justify-between hover:bg-gray-50/50 transition-colors group"
+              >
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <Toggle
+                    enabled={rule.status}
+                    onChange={() => toggleRule(rule.id)}
+                  />
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`text-sm font-medium ${rule.status ? 'text-gray-900' : 'text-gray-400'}`}
+                      >
+                        {rule.name}
+                      </span>
+                      <span className="text-xs text-gray-300 bg-gray-50 px-1.5 py-0.5 rounded">
+                        {rule.type}
+                      </span>
+                    </div>
+                    <div className="text-xs text-gray-400 mt-0.5">
+                      When ≤ {rule.threshold} days left → suggest {rule.action}
+                      {rule.type === 'category' &&
+                        ` · ${rule.products} products`}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-600">
+                    {I.edit('w-3.5 h-3.5')}
+                  </button>
+                  <button
+                    onClick={() => deleteRule(rule.id)}
+                    className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-600"
+                  >
+                    {I.trash('w-3.5 h-3.5')}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {showAddForm && (
+            <div className="px-6 py-4 border-t border-gray-100 bg-gray-50/50">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-sm font-medium text-gray-700">
+                  New automation rule
+                </span>
+                <button
+                  onClick={() => setShowAddForm(false)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  {I.x('w-4 h-4')}
+                </button>
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="text-xs font-medium text-gray-500 mb-1 block">
+                    Apply to
+                  </label>
+                  <select className="w-full text-sm px-3 py-2 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-900">
+                    <option>Dairy & Eggs</option>
+                    <option>Bakery</option>
+                    <option>Fresh Produce</option>
+                    <option>Meat & Seafood</option>
+                    <option>Beverages</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-gray-500 mb-1 block">
+                    Days before expiry
+                  </label>
+                  <input
+                    type="number"
+                    defaultValue={3}
+                    className="w-full text-sm px-3 py-2 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-900"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-gray-500 mb-1 block">
+                    Action
+                  </label>
+                  <select className="w-full text-sm px-3 py-2 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-900">
+                    <option>Suggest discount</option>
+                    <option>Suggest donation</option>
+                    <option>Alert only</option>
+                  </select>
+                </div>
+              </div>
+              <div className="flex items-center justify-end gap-2 mt-3">
+                <button
+                  onClick={() => setShowAddForm(false)}
+                  className="text-sm px-3 py-1.5 text-gray-500 hover:text-gray-700 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => setShowAddForm(false)}
+                  className="text-sm font-medium px-4 py-1.5 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
+                >
+                  Add rule
+                </button>
+              </div>
+            </div>
+          )}
+
+          {!showAddForm && (
+            <div className="px-6 py-3 border-t border-gray-100">
+              <button
+                onClick={() => setShowAddForm(true)}
+                className="text-sm text-gray-500 hover:text-gray-900 font-medium flex items-center gap-1.5 transition-colors"
+              >
+                {I.plus('w-3.5 h-3.5')}
+                Add rule
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+    </SectionCard>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════
 // SAVE FOOTER
 // ═══════════════════════════════════════════════════════════════
 
@@ -1315,6 +1523,9 @@ export default function LIFOSetupWireframeV2() {
   const [scope, setScope] = useState('all')
   const [categories, setCategories] = useState(CATEGORIES)
   const [products, setProducts] = useState(PRODUCTS)
+
+  const [rules, setRules] = useState(NOTIFICATION_RULES)
+  const [showAddForm, setShowAddForm] = useState(false)
 
   // Section 2: Batch Automation
   const [automationMode, setAutomationMode] = useState('category')
@@ -1439,7 +1650,17 @@ export default function LIFOSetupWireframeV2() {
           />
 
           {/* Section 3: Notification Rules (Coming Soon) */}
-          <NotificationRulesSection />
+          {/* <NotificationRulesSection /> */}
+
+          <NotificationRulesSection
+            rules={rules}
+            setRules={(newRules) => {
+              setRules(newRules)
+              setIsDirty(true)
+            }}
+            showAddForm={showAddForm}
+            setShowAddForm={setShowAddForm}
+          />
 
           {/* Section 4: Product Overrides */}
           <ProductOverridesSection overrides={overrides} />
