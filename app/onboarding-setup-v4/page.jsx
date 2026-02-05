@@ -639,6 +639,8 @@ function OverviewPanel({
           )
         : selectedProducts.length
 
+  const totalProducts = CATEGORIES.reduce((s, c) => s + c.count, 0)
+
   const automatedCount =
     automationMode === 'category'
       ? automationCategories.filter((c) => c.enabled).length
@@ -646,112 +648,309 @@ function OverviewPanel({
         ? automationProducts.length
         : 0
 
-  const stats = [
-    {
-      label: 'Tracking Coverage',
-      value:
-        trackingScope === 'all'
-          ? 'All products'
-          : trackingScope === 'category'
-            ? `${selectedCategories.length} categories`
-            : `${selectedProducts.length} products`,
-      detail: `${trackedCount} products tracked`,
-      icon: 'layers',
-      action: () => onNavigate('tracking'),
-    },
-    {
-      label: 'Batch Automation',
-      value:
-        automationMode === 'none'
-          ? 'Manual entry'
-          : automationMode === 'category'
-            ? `${automatedCount} categories`
-            : `${automatedCount} products`,
-      detail:
-        automationMode === 'none'
-          ? 'No automation configured'
-          : `Auto-expiry dates enabled`,
-      icon: 'calendar',
-      action: () => onNavigate('automation'),
-    },
-  ]
+  const enabledCategoryRules = automationCategories.filter((c) => c.enabled)
+  const manualProductsCount =
+    automationMode === 'none' ? trackedCount : totalProducts - trackedCount
 
   return (
     <div>
       <div className="mb-6">
-        <h2 className="text-lg font-bold text-gray-900">Overview</h2>
+        <h2 className="text-lg font-bold text-gray-900">
+          Review your batch setup
+        </h2>
         <p className="text-sm text-gray-400 mt-1">
-          Summary of your batch tracking configuration.
+          Here's how your batches will be created when inventory arrives.
         </p>
       </div>
 
-      <div className="space-y-3">
-        {stats.map((stat, i) => (
-          <button
-            key={i}
-            onClick={stat.action}
-            className="w-full text-left bg-white border border-gray-200 rounded-2xl p-5 hover:border-gray-300 hover:shadow-sm transition-all group"
-          >
-            <div className="flex items-start justify-between">
-              <div className="flex items-start gap-3.5">
-                <div className="bg-gray-100 p-2 rounded-xl group-hover:bg-gray-200/70 transition-colors">
-                  {I[stat.icon]('w-4 h-4 text-gray-500')}
-                </div>
-                <div>
-                  <div className="text-xs font-medium text-gray-400 uppercase tracking-wider">
-                    {stat.label}
-                  </div>
-                  <div className="text-base font-semibold text-gray-900 mt-1">
-                    {stat.value}
-                  </div>
-                  <div className="text-xs text-gray-400 mt-0.5">
-                    {stat.detail}
-                  </div>
-                </div>
-              </div>
-              <span className="text-xs font-medium text-gray-400 group-hover:text-gray-600 transition-colors mt-1">
-                Edit →
-              </span>
+      {/* Setup Summary */}
+      <div className="bg-white border border-gray-200 rounded-2xl p-5 mb-5">
+        <div className="flex items-start gap-3 mb-4">
+          <div className="bg-gray-100 p-2 rounded-xl">
+            {I.grid('w-4 h-4 text-gray-500')}
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-gray-900">
+              Setup Summary
+            </h3>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <div className="text-xs text-gray-400 uppercase tracking-wider font-medium mb-1">
+              Products tracked
             </div>
-          </button>
-        ))}
+            <div className="text-base font-semibold text-gray-900">
+              {trackedCount} of {CATEGORIES.length}
+            </div>
+          </div>
+
+          {automationMode !== 'none' && (
+            <>
+              {automationMode === 'category' && enabledCategoryRules.length > 0 && (
+                <div>
+                  <div className="text-xs text-gray-400 uppercase tracking-wider font-medium mb-1">
+                    Auto-expiration
+                  </div>
+                  <div className="text-base font-semibold text-gray-900">
+                    {enabledCategoryRules.length}{' '}
+                    {enabledCategoryRules.length === 1 ? 'category' : 'categories'}{' '}
+                    enabled
+                  </div>
+                </div>
+              )}
+
+              {automationMode === 'product' && automationProducts.length > 0 && (
+                <div>
+                  <div className="text-xs text-gray-400 uppercase tracking-wider font-medium mb-1">
+                    Product overrides
+                  </div>
+                  <div className="text-base font-semibold text-gray-900">
+                    {automationProducts.length}{' '}
+                    {automationProducts.length === 1 ? 'product' : 'products'}{' '}
+                    customized
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+
+          {automationMode === 'none' && (
+            <div>
+              <div className="text-xs text-gray-400 uppercase tracking-wider font-medium mb-1">
+                Manual entry
+              </div>
+              <div className="text-base font-semibold text-gray-900">
+                All products
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Quick status */}
-      <div className="mt-6 bg-gray-50 border border-gray-100 rounded-xl p-4">
-        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-          Configuration Status
-        </h3>
-        <div className="space-y-2">
-          <StatusRow
-            done={trackingScope !== null}
-            label="Tracking scope configured"
-            detail={
-              trackingScope === 'all'
-                ? 'All products'
-                : trackingScope === 'category'
-                  ? `${selectedCategories.length} categories`
-                  : `${selectedProducts.length} products`
-            }
-          />
-          <StatusRow
-            done={automationMode !== 'none'}
-            label="Batch automation set up"
-            detail={
-              automationMode === 'none'
-                ? 'Using manual entry'
-                : automationMode === 'category'
-                  ? `${automatedCount} categories automated`
-                  : `${automatedCount} products automated`
-            }
-          />
-          <StatusRow
-            done={false}
-            label="Notification rules"
-            detail="Coming soon"
-            disabled
-          />
+      {/* How it works */}
+      <div className="bg-white border border-gray-200 rounded-2xl p-5 mb-5">
+        <div className="flex items-start gap-3 mb-4">
+          <div className="bg-gray-100 p-2 rounded-xl">
+            {I.info('w-4 h-4 text-gray-500')}
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-gray-900">How it works</h3>
+          </div>
         </div>
+
+        <div className="space-y-4">
+          <div className="flex items-start gap-3">
+            <span className="text-sm font-semibold text-gray-400 shrink-0 w-5">
+              1.
+            </span>
+            <div>
+              <p className="text-sm font-medium text-gray-900 mb-1">
+                Sync your products
+              </p>
+              <p className="text-sm text-gray-500 leading-relaxed">
+                Connect Lifo to your Square account and import your inventory.
+                Lifo pulls in all your products, so you can start tracking expiry
+                dates immediately.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-3">
+            <span className="text-sm font-semibold text-gray-400 shrink-0 w-5">
+              2.
+            </span>
+            <div>
+              <p className="text-sm font-medium text-gray-900 mb-1">
+                Attach expiration dates
+              </p>
+              <p className="text-sm text-gray-500 leading-relaxed mb-2">
+                Products arrive without expiry info. You can:
+              </p>
+              <ul className="space-y-1.5 ml-4">
+                <li className="text-sm text-gray-500 leading-relaxed flex items-start gap-2">
+                  <span className="text-gray-300 shrink-0">•</span>
+                  <span>
+                    Let Lifo auto-fill dates using your rules (by category or
+                    individual product)
+                  </span>
+                </li>
+                <li className="text-sm text-gray-500 leading-relaxed flex items-start gap-2">
+                  <span className="text-gray-300 shrink-0">•</span>
+                  <span>Enter dates manually for products without rules</span>
+                </li>
+              </ul>
+              <p className="text-sm text-gray-500 leading-relaxed mt-2">
+                This creates batches — groups of the same product organized by
+                expiration date.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-3">
+            <span className="text-sm font-semibold text-gray-400 shrink-0 w-5">
+              3.
+            </span>
+            <div>
+              <p className="text-sm font-medium text-gray-900 mb-1">
+                Review and confirm
+              </p>
+              <p className="text-sm text-gray-500 leading-relaxed">
+                Quickly check quantities and expiration dates for each batch
+                before confirming. Lifo ensures your inventory is batch-level
+                accurate in seconds.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-3">
+            <span className="text-sm font-semibold text-gray-400 shrink-0 w-5">
+              4.
+            </span>
+            <div>
+              <p className="text-sm font-medium text-gray-900 mb-1">
+                Track and optimize
+              </p>
+              <p className="text-sm text-gray-500 leading-relaxed">
+                Once batches are created, Lifo applies FIFO logic to your sales
+                data. You'll see which batches are selling, which are lingering,
+                and when to discount or donate products — insights traditional
+                inventory counts can't provide.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Your automation rules */}
+      {automationMode !== 'none' && (
+        <div className="bg-white border border-gray-200 rounded-2xl p-5 mb-5">
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex items-start gap-3">
+              <div className="bg-gray-100 p-2 rounded-xl">
+                {I.calendar('w-4 h-4 text-gray-500')}
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-gray-900">
+                  Your automation rules
+                </h3>
+              </div>
+            </div>
+            <button
+              onClick={() => onNavigate('automation')}
+              className="text-xs font-medium text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              Edit →
+            </button>
+          </div>
+
+          {automationMode === 'category' && enabledCategoryRules.length > 0 && (
+            <div className="space-y-2">
+              {enabledCategoryRules.map((cat) => (
+                <div
+                  key={cat.id}
+                  className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg"
+                >
+                  <span className="text-sm text-gray-700">{cat.name}</span>
+                  <span className="text-sm font-semibold text-gray-900">
+                    {cat.days} days
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {automationMode === 'product' && automationProducts.length > 0 && (
+            <div className="space-y-2">
+              {automationProducts.map((prod) => (
+                <div
+                  key={prod.id}
+                  className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg"
+                >
+                  <div>
+                    <span className="text-sm text-gray-700">{prod.name}</span>
+                    <span className="text-xs text-gray-400 ml-2">
+                      {prod.category}
+                    </span>
+                  </div>
+                  <span className="text-sm font-semibold text-gray-900">
+                    {prod.days} days
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {automationMode === 'category' &&
+            automationProducts.length > 0 && (
+              <div className="mt-3 pt-3 border-t border-gray-100">
+                <div className="text-xs text-gray-400 mb-2">
+                  + {automationProducts.length} product override
+                  {automationProducts.length !== 1 ? 's' : ''}
+                </div>
+              </div>
+            )}
+        </div>
+      )}
+
+      {/* Quick actions */}
+      <div className="space-y-2">
+        <button
+          onClick={() => onNavigate('tracking')}
+          className="w-full text-left bg-gray-50 border border-gray-200 rounded-xl p-4 hover:border-gray-300 hover:bg-white transition-all group"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="bg-white p-2 rounded-lg group-hover:bg-gray-50 transition-colors">
+                {I.layers('w-3.5 h-3.5 text-gray-500')}
+              </div>
+              <div>
+                <div className="text-sm font-medium text-gray-900">
+                  What to Track
+                </div>
+                <div className="text-xs text-gray-400 mt-0.5">
+                  {trackingScope === 'all'
+                    ? `Tracking all ${totalProducts} products`
+                    : trackingScope === 'category'
+                      ? `${selectedCategories.length} categories selected`
+                      : `${selectedProducts.length} individual products`}
+                </div>
+              </div>
+            </div>
+            <span className="text-xs font-medium text-gray-400 group-hover:text-gray-600">
+              Edit →
+            </span>
+          </div>
+        </button>
+
+        <button
+          onClick={() => onNavigate('automation')}
+          className="w-full text-left bg-gray-50 border border-gray-200 rounded-xl p-4 hover:border-gray-300 hover:bg-white transition-all group"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="bg-white p-2 rounded-lg group-hover:bg-gray-50 transition-colors">
+                {I.calendar('w-3.5 h-3.5 text-gray-500')}
+              </div>
+              <div>
+                <div className="text-sm font-medium text-gray-900">
+                  Batch Automation
+                </div>
+                <div className="text-xs text-gray-400 mt-0.5">
+                  {automationMode === 'none'
+                    ? 'Manual entry for all products'
+                    : automationMode === 'category'
+                      ? `${automatedCount} categories automated`
+                      : `${automatedCount} product overrides`}
+                </div>
+              </div>
+            </div>
+            <span className="text-xs font-medium text-gray-400 group-hover:text-gray-600">
+              Edit →
+            </span>
+          </div>
+        </button>
       </div>
     </div>
   )
