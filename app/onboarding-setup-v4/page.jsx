@@ -629,6 +629,8 @@ function OverviewPanel({
   automationCategories,
   automationProducts,
 }) {
+  const [howItWorksExpanded, setHowItWorksExpanded] = useState(true)
+
   const trackedCount =
     trackingScope === 'all'
       ? PRODUCTS.length
@@ -688,31 +690,35 @@ function OverviewPanel({
 
           {automationMode !== 'none' && (
             <>
-              {automationMode === 'category' && enabledCategoryRules.length > 0 && (
-                <div>
-                  <div className="text-xs text-gray-400 uppercase tracking-wider font-medium mb-1">
-                    Auto-expiration
+              {automationMode === 'category' &&
+                enabledCategoryRules.length > 0 && (
+                  <div>
+                    <div className="text-xs text-gray-400 uppercase tracking-wider font-medium mb-1">
+                      Auto-expiration
+                    </div>
+                    <div className="text-base font-semibold text-gray-900">
+                      {enabledCategoryRules.length}{' '}
+                      {enabledCategoryRules.length === 1
+                        ? 'category'
+                        : 'categories'}{' '}
+                      enabled
+                    </div>
                   </div>
-                  <div className="text-base font-semibold text-gray-900">
-                    {enabledCategoryRules.length}{' '}
-                    {enabledCategoryRules.length === 1 ? 'category' : 'categories'}{' '}
-                    enabled
-                  </div>
-                </div>
-              )}
+                )}
 
-              {automationMode === 'product' && automationProducts.length > 0 && (
-                <div>
-                  <div className="text-xs text-gray-400 uppercase tracking-wider font-medium mb-1">
-                    Product overrides
+              {automationMode === 'product' &&
+                automationProducts.length > 0 && (
+                  <div>
+                    <div className="text-xs text-gray-400 uppercase tracking-wider font-medium mb-1">
+                      Product overrides
+                    </div>
+                    <div className="text-base font-semibold text-gray-900">
+                      {automationProducts.length}{' '}
+                      {automationProducts.length === 1 ? 'product' : 'products'}{' '}
+                      customized
+                    </div>
                   </div>
-                  <div className="text-base font-semibold text-gray-900">
-                    {automationProducts.length}{' '}
-                    {automationProducts.length === 1 ? 'product' : 'products'}{' '}
-                    customized
-                  </div>
-                </div>
-              )}
+                )}
             </>
           )}
 
@@ -731,96 +737,110 @@ function OverviewPanel({
 
       {/* How it works */}
       <div className="bg-white border border-gray-200 rounded-2xl p-5 mb-5">
-        <div className="flex items-start gap-3 mb-4">
-          <div className="bg-gray-100 p-2 rounded-xl">
-            {I.info('w-4 h-4 text-gray-500')}
-          </div>
-          <div>
-            <h3 className="text-sm font-semibold text-gray-900">How it works</h3>
-          </div>
-        </div>
-
-        <div className="space-y-4">
+        <button
+          onClick={() => setHowItWorksExpanded(!howItWorksExpanded)}
+          className="w-full flex items-start justify-between gap-3 mb-4 group"
+        >
           <div className="flex items-start gap-3">
-            <span className="text-sm font-semibold text-gray-400 shrink-0 w-5">
-              1.
-            </span>
+            <div className="bg-gray-100 p-2 rounded-xl group-hover:bg-gray-200/70 transition-colors">
+              {I.info('w-4 h-4 text-gray-500')}
+            </div>
             <div>
-              <p className="text-sm font-medium text-gray-900 mb-1">
-                Sync your products
-              </p>
-              <p className="text-sm text-gray-500 leading-relaxed">
-                Connect Lifo to your Square account and import your inventory.
-                Lifo pulls in all your products, so you can start tracking expiry
-                dates immediately.
-              </p>
+              <h3 className="text-sm font-semibold text-gray-900">
+                How it works
+              </h3>
             </div>
           </div>
+          <div
+            className={`transition-transform duration-200 ${howItWorksExpanded ? 'rotate-180' : ''}`}
+          >
+            {I.chevronDown('w-4 h-4 text-gray-400')}
+          </div>
+        </button>
 
-          <div className="flex items-start gap-3">
-            <span className="text-sm font-semibold text-gray-400 shrink-0 w-5">
-              2.
-            </span>
-            <div>
-              <p className="text-sm font-medium text-gray-900 mb-1">
-                Attach expiration dates
-              </p>
-              <p className="text-sm text-gray-500 leading-relaxed mb-2">
-                Products arrive without expiry info. You can:
-              </p>
-              <ul className="space-y-1.5 ml-4">
-                <li className="text-sm text-gray-500 leading-relaxed flex items-start gap-2">
-                  <span className="text-gray-300 shrink-0">•</span>
-                  <span>
-                    Let Lifo auto-fill dates using your rules (by category or
-                    individual product)
-                  </span>
-                </li>
-                <li className="text-sm text-gray-500 leading-relaxed flex items-start gap-2">
-                  <span className="text-gray-300 shrink-0">•</span>
-                  <span>Enter dates manually for products without rules</span>
-                </li>
-              </ul>
-              <p className="text-sm text-gray-500 leading-relaxed mt-2">
-                This creates batches — groups of the same product organized by
-                expiration date.
-              </p>
+        {howItWorksExpanded && (
+          <div className="space-y-4">
+            <div className="flex items-start gap-3">
+              <span className="text-sm font-semibold text-gray-400 shrink-0 w-5">
+                1.
+              </span>
+              <div>
+                <p className="text-sm font-medium text-gray-900 mb-1">
+                  Sync your products
+                </p>
+                <p className="text-sm text-gray-500 leading-relaxed">
+                  Connect Lifo to your Square account and import your inventory.
+                  Lifo pulls in all your products, so you can start tracking
+                  expiry dates immediately.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <span className="text-sm font-semibold text-gray-400 shrink-0 w-5">
+                2.
+              </span>
+              <div>
+                <p className="text-sm font-medium text-gray-900 mb-1">
+                  Attach expiration dates
+                </p>
+                <p className="text-sm text-gray-500 leading-relaxed mb-2">
+                  Products arrive without expiry info. You can:
+                </p>
+                <ul className="space-y-1.5 ml-4">
+                  <li className="text-sm text-gray-500 leading-relaxed flex items-start gap-2">
+                    <span className="text-gray-300 shrink-0">•</span>
+                    <span>
+                      Let Lifo auto-fill dates using your rules (by category or
+                      individual product)
+                    </span>
+                  </li>
+                  <li className="text-sm text-gray-500 leading-relaxed flex items-start gap-2">
+                    <span className="text-gray-300 shrink-0">•</span>
+                    <span>Enter dates manually for products without rules</span>
+                  </li>
+                </ul>
+                <p className="text-sm text-gray-500 leading-relaxed mt-2">
+                  This creates batches — groups of the same product organized by
+                  expiration date.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <span className="text-sm font-semibold text-gray-400 shrink-0 w-5">
+                3.
+              </span>
+              <div>
+                <p className="text-sm font-medium text-gray-900 mb-1">
+                  Review and confirm
+                </p>
+                <p className="text-sm text-gray-500 leading-relaxed">
+                  Quickly check quantities and expiration dates for each batch
+                  before confirming. Lifo ensures your inventory is batch-level
+                  accurate in seconds.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <span className="text-sm font-semibold text-gray-400 shrink-0 w-5">
+                4.
+              </span>
+              <div>
+                <p className="text-sm font-medium text-gray-900 mb-1">
+                  Track and optimize
+                </p>
+                <p className="text-sm text-gray-500 leading-relaxed">
+                  Once batches are created, Lifo applies FIFO logic to your
+                  sales data. You'll see which batches are selling, which are
+                  lingering, and when to discount or donate products — insights
+                  traditional inventory counts can't provide.
+                </p>
+              </div>
             </div>
           </div>
-
-          <div className="flex items-start gap-3">
-            <span className="text-sm font-semibold text-gray-400 shrink-0 w-5">
-              3.
-            </span>
-            <div>
-              <p className="text-sm font-medium text-gray-900 mb-1">
-                Review and confirm
-              </p>
-              <p className="text-sm text-gray-500 leading-relaxed">
-                Quickly check quantities and expiration dates for each batch
-                before confirming. Lifo ensures your inventory is batch-level
-                accurate in seconds.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-3">
-            <span className="text-sm font-semibold text-gray-400 shrink-0 w-5">
-              4.
-            </span>
-            <div>
-              <p className="text-sm font-medium text-gray-900 mb-1">
-                Track and optimize
-              </p>
-              <p className="text-sm text-gray-500 leading-relaxed">
-                Once batches are created, Lifo applies FIFO logic to your sales
-                data. You'll see which batches are selling, which are lingering,
-                and when to discount or donate products — insights traditional
-                inventory counts can't provide.
-              </p>
-            </div>
-          </div>
-        </div>
+        )}
       </div>
 
       {/* Your automation rules */}
@@ -882,15 +902,14 @@ function OverviewPanel({
             </div>
           )}
 
-          {automationMode === 'category' &&
-            automationProducts.length > 0 && (
-              <div className="mt-3 pt-3 border-t border-gray-100">
-                <div className="text-xs text-gray-400 mb-2">
-                  + {automationProducts.length} product override
-                  {automationProducts.length !== 1 ? 's' : ''}
-                </div>
+          {automationMode === 'category' && automationProducts.length > 0 && (
+            <div className="mt-3 pt-3 border-t border-gray-100">
+              <div className="text-xs text-gray-400 mb-2">
+                + {automationProducts.length} product override
+                {automationProducts.length !== 1 ? 's' : ''}
               </div>
-            )}
+            </div>
+          )}
         </div>
       )}
 
@@ -1698,7 +1717,7 @@ export default function SettingsSidebarWireframe() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-2 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <span className="text-xs font-mono text-gray-400 uppercase tracking-wider">
-              Wireframe v3
+              Wireframe v4
             </span>
             <div className="w-px h-3 bg-gray-200" />
             <span className="text-xs text-gray-400">
