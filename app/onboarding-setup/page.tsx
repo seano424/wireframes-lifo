@@ -71,7 +71,7 @@ const ProductAvatar = ({ name }: { name: string }) => {
 const Screen1Welcome = ({ onNext, onSkip }: { onNext: () => void, onSkip: () => void }) => (
   <div className="min-h-screen bg-gray-50 flex flex-col">
     <header className="flex justify-between items-center p-6 border-b bg-white">
-      <div className="font-bold text-xl text-gray-800">LIFO</div>
+      <div className="font-bold text-xl text-gray-800">Lifo</div>
       <button onClick={onSkip} className="text-gray-500 hover:text-gray-700 text-sm flex items-center gap-1">
         Skip setup <ChevronRight className="w-4 h-4" />
       </button>
@@ -616,7 +616,7 @@ const ErrorState = ({ onRetry, onContinue }: { onRetry: () => void, onContinue: 
 );
 
 // Main App Component
-export default function LIFOOnboardingWireframes(): React.ReactNode {
+export default function LifoOnboardingWireframes(): React.ReactNode {
   const [currentScreen, setCurrentScreen] = useState(1);
   const [showLoading, setShowLoading] = useState(false);
   const [showError, setShowError] = useState(false);

@@ -710,14 +710,14 @@ function AutomationRulesSection({
     <SectionCard
       icon="zap"
       title="Automation Rules"
-      subtitle="Define when LIFO should automatically suggest discounts or donations"
+      subtitle="Define when Lifo should automatically suggest discounts or donations"
       badge={activeCount > 0 ? `${activeCount} active` : null}
     >
       {rules.length === 0 && !showAddForm ? (
         <EmptyState
           icon="zap"
           title="No automation rules yet"
-          description="LIFO will notify you manually for each expiring batch. Add rules to automate discount and donation recommendations."
+          description="Lifo will notify you manually for each expiring batch. Add rules to automate discount and donation recommendations."
           action="Add first rule"
           onAction={() => setShowAddForm(true)}
         />
@@ -956,7 +956,7 @@ function FirstRunBanner({ scope, rulesCount, overridesCount, onDismiss }) {
           <div>
             <h2 className="text-base font-semibold">Set up batch tracking</h2>
             <p className="text-sm text-gray-400 mt-1">
-              Configure how LIFO tracks your inventory. This usually takes about
+              Configure how Lifo tracks your inventory. This usually takes about
               2 minutes.
             </p>
             <div className="flex items-center gap-6 mt-4">
@@ -1066,7 +1066,7 @@ function SaveFooter({ isDirty, isFirstRun, onSave, onDiscard }) {
 
 // ——— Main Component ——————————————————————————————————
 
-export default function LIFOSetupWireframe() {
+export default function LifoSetupWireframe() {
   // Mode toggle for demo purposes
   const [isFirstRun, setIsFirstRun] = useState(true)
   const [showFirstRunBanner, setShowFirstRunBanner] = useState(true)
@@ -1153,7 +1153,7 @@ export default function LIFOSetupWireframe() {
           </h1>
           <p className="text-sm text-gray-400 mt-1">
             {isFirstRun
-              ? 'Configure how LIFO tracks your inventory and automates waste reduction.'
+              ? 'Configure how Lifo tracks your inventory and automates waste reduction.'
               : 'Manage your tracking preferences, automation rules, and product overrides.'}
           </p>
         </div>

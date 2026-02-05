@@ -1,5 +1,5 @@
 /**
- * LIFO Features Page - Low-Fidelity Wireframe
+ * Lifo Features Page - Low-Fidelity Wireframe
  *
  * Layout philosophy:
  * - Mobile-first with max-w-4xl content container
@@ -505,13 +505,13 @@ function PricingSection() {
 // Composes all sections in order
 // ════════════════════════════════════════════════════════════════
 
-export default function LIFOFeaturesPage() {
+export default function LifoFeaturesPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Simple header placeholder */}
       <header className="border-b border-gray-200 px-6 py-4">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <span className="font-bold text-gray-900">LIFO</span>
+          <span className="font-bold text-gray-900">Lifo</span>
           <nav className="hidden sm:flex gap-6 text-sm text-gray-600">
             <span>Features</span>
             <span>Pricing</span>
@@ -536,7 +536,7 @@ export default function LIFOFeaturesPage() {
       {/* Simple footer placeholder */}
       <footer className="border-t border-gray-200 px-6 py-8">
         <div className="max-w-4xl mx-auto text-center text-sm text-gray-500">
-          © 2025 LIFO · Privacy · Terms
+          © 2025 Lifo · Privacy · Terms
         </div>
       </footer>
     </div>
