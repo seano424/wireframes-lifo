@@ -29,6 +29,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-  ],
+, "app/onboarding-setup-v2/page.jsx"  ],
   "exclude": ["node_modules"]
 }
