@@ -351,7 +351,7 @@ function DashboardSection() {
               className="flex gap-3"
             >
               {/* Number indicator */}
-              <div className="w-6 h-6 rounded-full bg-gray-300 flex-shrink-0 flex items-center justify-center">
+              <div className="w-6 h-6 rounded-full bg-gray-300 shrink-0 flex items-center justify-center">
                 <span className="text-xs font-bold text-gray-600">{i + 1}</span>
               </div>
 
@@ -452,7 +452,7 @@ function ScopeSection() {
               className="flex gap-4 items-start p-4 bg-gray-50 rounded-lg"
             >
               {/* X indicator - shows this is NOT included */}
-              <div className="w-6 h-6 rounded bg-gray-200 flex-shrink-0 flex items-center justify-center">
+              <div className="w-6 h-6 rounded bg-gray-200 shrink-0 flex items-center justify-center">
                 <span className="text-gray-500 text-xs font-bold">✕</span>
               </div>
 

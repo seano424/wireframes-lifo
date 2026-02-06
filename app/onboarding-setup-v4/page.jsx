@@ -439,7 +439,7 @@ function Toggle({ enabled, onChange, size = 'default' }) {
         e.stopPropagation()
         onChange()
       }}
-      className={`relative rounded-full transition-colors duration-200 flex-shrink-0 ${
+      className={`relative rounded-full transition-colors duration-200 shrink-0 ${
         enabled ? 'bg-gray-900' : 'bg-gray-200'
       }`}
       style={{ width: w, height: h }}
@@ -462,7 +462,7 @@ function Toggle({ enabled, onChange, size = 'default' }) {
 function RadioDot({ selected }) {
   return (
     <div
-      className={`w-[18px] h-[18px] rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
+      className={`w-[18px] h-[18px] rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
         selected ? 'border-gray-900' : 'border-gray-300'
       }`}
     >
@@ -478,7 +478,7 @@ function Checkbox({ checked, onChange }) {
         e.stopPropagation()
         onChange()
       }}
-      className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors cursor-pointer flex-shrink-0 ${
+      className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors cursor-pointer shrink-0 ${
         checked
           ? 'bg-gray-900 border-gray-900'
           : 'border-gray-300 hover:border-gray-400'
@@ -567,7 +567,7 @@ function SidebarNav({ activeSection, onSelect, summaries }) {
             }`}
           >
             <div
-              className={`p-1.5 rounded-lg flex-shrink-0 transition-colors ${
+              className={`p-1.5 rounded-lg shrink-0 transition-colors ${
                 isActive
                   ? 'bg-white/15'
                   : s.disabled
@@ -979,7 +979,7 @@ function StatusRow({ done, label, detail, disabled }) {
   return (
     <div className={`flex items-center gap-3 ${disabled ? 'opacity-40' : ''}`}>
       <div
-        className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${
+        className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
           done ? 'bg-gray-900' : 'border-2 border-gray-200'
         }`}
       >
@@ -1152,7 +1152,7 @@ function TrackingPanel({
 
       {/* Footer summary */}
       <div className="mt-5 flex items-start gap-3 px-1">
-        {I.info('w-4 h-4 text-gray-300 mt-0.5 flex-shrink-0')}
+        {I.info('w-4 h-4 text-gray-300 mt-0.5 shrink-0')}
         <p className="text-xs text-gray-400 leading-relaxed">
           Currently tracking{' '}
           <span className="font-medium text-gray-600">
@@ -1331,7 +1331,7 @@ function AutomationPanel({
                       {p.category}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 flex-shrink-0">
+                  <div className="flex items-center gap-2 shrink-0">
                     <span className="text-sm font-semibold text-gray-700">
                       {p.days} days
                     </span>
@@ -1430,7 +1430,7 @@ function AutomationPanel({
 
       {/* Contextual help */}
       <div className="mt-5 flex items-start gap-3 px-1">
-        {I.info('w-4 h-4 text-gray-300 mt-0.5 flex-shrink-0')}
+        {I.info('w-4 h-4 text-gray-300 mt-0.5 shrink-0')}
         <p className="text-xs text-gray-400 leading-relaxed">
           {mode === 'none'
             ? 'With manual entry, employees will be prompted to enter or scan the expiration date for every batch.'
@@ -1585,7 +1585,7 @@ function MobileOverviewList({ onSelect, summaries }) {
               : 'hover:border-gray-300 hover:shadow-sm'
           }`}
         >
-          <div className="bg-gray-100 p-2 rounded-xl flex-shrink-0">
+          <div className="bg-gray-100 p-2 rounded-xl shrink-0">
             {I[s.icon]('w-4 h-4 text-gray-500')}
           </div>
           <div className="flex-1 min-w-0">
