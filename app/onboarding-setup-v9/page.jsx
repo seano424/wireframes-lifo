@@ -1,5 +1,3 @@
-
-
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -524,7 +522,7 @@ function Toggle({ enabled, onChange, size = 'default' }) {
         e.stopPropagation()
         onChange()
       }}
-      className={`relative rounded-full transition-colors duration-200 flex-shrink-0 ${enabled ? 'bg-gray-900' : 'bg-gray-200'}`}
+      className={`relative rounded-full transition-colors duration-200 shrink-0 ${enabled ? 'bg-gray-900' : 'bg-gray-200'}`}
       style={{ width: w, height: h }}
     >
       <div
@@ -548,7 +546,7 @@ function Toggle({ enabled, onChange, size = 'default' }) {
 
 function Sidebar({ step, completedSteps, onStepClick }) {
   const steps = [
-    { id: 0, label: 'Square connected', icon: 'square', alwaysComplete: true },
+    { id: 0, label: 'Square connected', icon: 'square' },
     { id: 1, label: 'What to track', icon: 'layers' },
     { id: 2, label: 'How to track it', icon: 'calendar' },
   ]
@@ -556,15 +554,15 @@ function Sidebar({ step, completedSteps, onStepClick }) {
   return (
     <nav className="space-y-1">
       {steps.map((s) => {
-        const isComplete = s.alwaysComplete || completedSteps.includes(s.id)
+        const isComplete = completedSteps.includes(s.id)
         const isCurrent = step === s.id
-        const isClickable = !s.alwaysComplete
+        const isClickable = true
 
         return (
           <button
             key={s.id}
-            onClick={() => !s.alwaysComplete && onStepClick(s.id)}
-            disabled={s.alwaysComplete}
+            onClick={() => onStepClick(s.id)}
+            disabled={false}
             className={`w-full text-left px-3 py-2.5 rounded-xl flex items-center gap-3 transition-all duration-150 group ${
               isCurrent
                 ? 'bg-gray-900 text-white'
@@ -575,7 +573,7 @@ function Sidebar({ step, completedSteps, onStepClick }) {
           >
             {/* Step indicator */}
             <div
-              className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-semibold ${
+              className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs font-semibold ${
                 isComplete && !isCurrent
                   ? 'bg-gray-900 text-white'
                   : isCurrent
@@ -585,9 +583,11 @@ function Sidebar({ step, completedSteps, onStepClick }) {
             >
               {isComplete && !isCurrent
                 ? I.check('w-3 h-3')
-                : s.alwaysComplete
+                : s.id === 0 && !isCurrent
                   ? I.check('w-3 h-3 text-gray-400')
-                  : s.id}
+                  : s.id === 0
+                    ? I.check('w-3 h-3')
+                    : s.id}
             </div>
 
             <span
@@ -607,7 +607,7 @@ function Sidebar({ step, completedSteps, onStepClick }) {
           }`}
         >
           <div
-            className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${
+            className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${
               completedSteps.includes(2) ? 'bg-gray-900' : 'bg-gray-100'
             }`}
           >
@@ -619,6 +619,67 @@ function Sidebar({ step, completedSteps, onStepClick }) {
         </div>
       </div>
     </nav>
+  )
+}
+
+// ═══════════════════════════════════════════════════════
+// STEP 0: SQUARE CONNECTED
+// ═══════════════════════════════════════════════════════
+
+function StepSquareConnected({ onNext }) {
+  return (
+    <div>
+      <div className="mb-6">
+        <h2 className="text-xl font-bold text-gray-900 mb-1.5">
+          Square connected
+        </h2>
+        <p className="text-sm text-gray-400">
+          Your Square account is successfully connected and synced.
+        </p>
+      </div>
+
+      {/* Simple grayscale info panel */}
+      <div className="bg-gray-50 border border-gray-200 rounded-xl p-6 mb-6">
+        <div className="space-y-4">
+          <div>
+            <div className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">
+              Store Name
+            </div>
+            <div className="text-sm text-gray-700">
+              {SQUARE_CATALOG.storeName}
+            </div>
+          </div>
+          <div>
+            <div className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">
+              Catalog Size
+            </div>
+            <div className="text-sm text-gray-700">
+              {TOTAL_PRODUCTS} products across{' '}
+              {SQUARE_CATALOG.categories.length} categories
+            </div>
+          </div>
+          <div>
+            <div className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">
+              Connection Status
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-gray-400" />
+              <span className="text-sm text-gray-700">Active</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Next button */}
+      <div className="flex justify-end">
+        <button
+          onClick={onNext}
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-gray-900 text-white text-sm font-semibold rounded-xl hover:bg-gray-800 transition-colors"
+        >
+          Next {I.arrowRight('w-3.5 h-3.5')}
+        </button>
+      </div>
+    </div>
   )
 }
 
@@ -679,7 +740,7 @@ function StepWhatToTrack({ categories, onToggle, onNext }) {
               </div>
             </div>
             <span
-              className={`text-sm tabular-nums flex-shrink-0 ${cat.enabled ? 'text-gray-500' : 'text-gray-300'}`}
+              className={`text-sm tabular-nums shrink-0 ${cat.enabled ? 'text-gray-500' : 'text-gray-300'}`}
             >
               {cat.productCount} products
             </span>
@@ -710,7 +771,7 @@ function StepWhatToTrack({ categories, onToggle, onNext }) {
                   />
                   <span className="text-sm text-gray-400">{cat.name}</span>
                 </div>
-                <span className="text-xs text-gray-300 flex-shrink-0">
+                <span className="text-xs text-gray-300 shrink-0">
                   {cat.productCount} products
                 </span>
               </div>
@@ -894,7 +955,7 @@ function StepHowToTrack({
                 </span>
               </div>
             </div>
-            <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="flex items-center gap-2 shrink-0">
               <ShelfLifeChip
                 cat={cat}
                 onUpdateDays={(days) => onUpdateDays(cat.id, days)}
@@ -915,8 +976,8 @@ function StepHowToTrack({
                   }
                 >
                   {cat.mode === 'auto'
-                    ? I.zap('w-3.5 h-3.5')
-                    : I.pencil('w-3.5 h-3.5')}
+                    ? I.pencil('w-3.5 h-3.5')
+                    : I.zap('w-3.5 h-3.5')}
                 </button>
               </div>
             </div>
@@ -1019,7 +1080,7 @@ function StepHowToTrack({
 
       {/* Info box */}
       <div className="flex items-start gap-3 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 mb-6">
-        {I.info('w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0')}
+        {I.info('w-4 h-4 text-gray-400 mt-0.5 shrink-0')}
         <p className="text-xs text-gray-400 leading-relaxed">
           These are starting defaults — your team can adjust any date when
           processing a delivery. You can change all of this later in Settings.
@@ -1189,7 +1250,7 @@ function StepSuccess({ categories }) {
               key={i}
               className={`flex items-center gap-3 transition-all duration-300 ${showChecks[i] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}
             >
-              <div className="w-5 h-5 rounded-full bg-gray-900 flex items-center justify-center flex-shrink-0">
+              <div className="w-5 h-5 rounded-full bg-gray-900 flex items-center justify-center shrink-0">
                 {I.check('w-3 h-3 text-white')}
               </div>
               <div className="flex-1">
@@ -1235,6 +1296,7 @@ function StepSuccess({ categories }) {
 
 function MobileStepBar({ step, completedSteps }) {
   const steps = [
+    { id: 0, label: 'Square connected' },
     { id: 1, label: 'What to track' },
     { id: 2, label: 'How to track' },
   ]
@@ -1286,9 +1348,9 @@ function MobileStepBar({ step, completedSteps }) {
 // ═══════════════════════════════════════════════════════
 
 export default function OnboardingSetupV8() {
-  // step: 1 = what to track, 2 = how to track, 'activating', 'success'
+  // step: 0 = square connected, 1 = what to track, 2 = how to track, 'activating', 'success'
   const [step, setStep] = useState(1)
-  const [completedSteps, setCompletedSteps] = useState([])
+  const [completedSteps, setCompletedSteps] = useState([0])
 
   const [categories, setCategories] = useState(() =>
     processSquareCatalog(SQUARE_CATALOG),
@@ -1321,13 +1383,17 @@ export default function OnboardingSetupV8() {
     )
   }
 
-  const goToStep2 = () => {
-    setCompletedSteps((prev) => (prev.includes(1) ? prev : [...prev, 1]))
-    setStep(2)
+  const goToStep0 = () => {
+    setStep(0)
   }
 
   const goToStep1 = () => {
     setStep(1)
+  }
+
+  const goToStep2 = () => {
+    setCompletedSteps((prev) => (prev.includes(1) ? prev : [...prev, 1]))
+    setStep(2)
   }
 
   const handleActivate = () => {
@@ -1337,14 +1403,15 @@ export default function OnboardingSetupV8() {
   }
 
   const handleSkip = () => {
-    setCompletedSteps([1, 2])
+    setCompletedSteps([0, 1, 2])
     setStep('activating')
     setTimeout(() => setStep('success'), 2200)
   }
 
   const handleStepClick = (s) => {
+    if (s === 0) goToStep0()
     if (s === 1) goToStep1()
-    if (s === 2 && completedSteps.includes(1)) goToStep2()
+    if (s === 2) goToStep2()
   }
 
   const tracked = categories.filter((c) => c.enabled)
@@ -1352,6 +1419,8 @@ export default function OnboardingSetupV8() {
 
   const renderPanel = () => {
     switch (step) {
+      case 0:
+        return <StepSquareConnected onNext={goToStep1} />
       case 1:
         return (
           <StepWhatToTrack
@@ -1380,7 +1449,7 @@ export default function OnboardingSetupV8() {
     }
   }
 
-  const isStepPhase = step === 1 || step === 2
+  const isStepPhase = step === 0 || step === 1 || step === 2
 
   return (
     <div className="min-h-screen bg-gray-50">
