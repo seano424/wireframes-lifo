@@ -1,3 +1,5 @@
+// v5 of the onboarding setup
+
 'use client'
 
 import { useState } from 'react'
