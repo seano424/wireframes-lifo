@@ -1,28 +1,52 @@
 import Link from "next/link";
 
+const sections = [
+  {
+    title: "Onboarding Setup",
+    items: [
+      { href: "/onboarding-setup", label: "Onboarding Setup" },
+      { href: "/onboarding-setup-v2", label: "Onboarding Setup V2" },
+      { href: "/onboarding-setup-v3", label: "Onboarding Setup V3" },
+      { href: "/onboarding-setup-v4", label: "Onboarding Setup V4" },
+      { href: "/onboarding-setup-v5", label: "Onboarding Setup V5" },
+      { href: "/onboarding-setup-v6", label: "Onboarding Setup V6" },
+      { href: "/onboarding-setup-v7", label: "Onboarding Setup V7" },
+      { href: "/onboarding-setup-v8", label: "Onboarding Setup V8" },
+      { href: "/onboarding-setup-v9", label: "Onboarding Setup V9" },
+    ],
+  },
+  {
+    title: "Marketing Pages",
+    items: [
+      { href: "/features", label: "Features" },
+    ],
+  },
+  {
+    title: "Square Integration",
+    items: [
+      { href: "/square-integration-v1", label: "Square Integration V1" },
+    ],
+  },
+];
+
 export default function Home() {
   return (
-    <div className="container mx-auto p-4 grid md:grid-cols-2 divide-y-2 md:divide-x-2 md:divide-y-0 divide-gray-50">
-      <div className="flex flex-col gap-2 py-4 md:py-0">
-        <h2 className="font-black">Onboarding Setup</h2>
-        <div className="flex flex-col gap-2 ml-2">
-          <Link href="/onboarding-setup" className="text-blue-500">Onboarding Setup</Link>
-          <Link href="/onboarding-setup-v2" className="text-blue-500">Onboarding Setup V2</Link>
-          <Link href="/onboarding-setup-v3" className="text-blue-500">Onboarding Setup V3</Link>
-          <Link href="/onboarding-setup-v4" className="text-blue-500">Onboarding Setup V4</Link>
-          <Link href="/onboarding-setup-v5" className="text-blue-500">Onboarding Setup V5</Link>
-          <Link href="/onboarding-setup-v6" className="text-blue-500">Onboarding Setup V6</Link>
-          <Link href="/onboarding-setup-v7" className="text-blue-500">Onboarding Setup V7</Link>
-          <Link href="/onboarding-setup-v8" className="text-blue-500">Onboarding Setup V8</Link>
-          <Link href="/onboarding-setup-v9" className="text-blue-500">Onboarding Setup V9</Link>
+    <div className="container mx-auto p-4 grid md:grid-cols-2 divide-y-2 md:divide-x-2 md:divide-y-0 divide-gray-50 gap-8">
+      {sections.map((section) => (
+        <div
+          key={section.title}
+          className="flex flex-col gap-2 py-4 md:py-0"
+        >
+          <h2 className="font-black">{section.title}</h2>
+          <div className="flex flex-col gap-2">
+            {section.items.map((item) => (
+              <Link key={item.href} href={item.href} className="text-blue-500">
+                {item.label}
+              </Link>
+            ))}
+          </div>
         </div>
-      </div>
-      <div className="flex flex-col gap-2 py-4 md:py-0 md:pl-8">
-        <h2 className="font-black">Marketing Pages</h2>
-        <div className="flex flex-col gap-2 ml-2">
-          <Link href="/features" className="text-blue-500">Features</Link>
-        </div>
-      </div>
+      ))}
     </div>
   );
 }
