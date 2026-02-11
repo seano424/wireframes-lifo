@@ -27,6 +27,12 @@ const sections = [
       { href: "/square-integration-v1", label: "Square Integration V1" },
     ],
   },
+  {
+    title: "Modals",
+    items: [
+      { href: "/modals/product-modal", label: "Product Modal" },
+    ],
+  },
 ];
 
 export default function Home() {
