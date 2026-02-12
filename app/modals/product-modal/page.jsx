@@ -3,15 +3,23 @@
 import { useState, useEffect, useRef } from 'react'
 
 // ——— Mock Data ———
+const CATEGORY_DEFAULTS = {
+  name: 'Dairy & Eggs',
+  mode: 'auto',
+  shelfLifeDays: 14,
+}
+
 const PRODUCT = {
   name: 'Organic Whole Milk 1L',
   sku: 'DAIRY-042',
   category: 'Dairy & Eggs',
   brand: 'Horizon Organic',
   totalStock: 48,
-  trackingMode: 'auto',
-  shelfLifeDays: 14,
-  categoryRule: 'Dairy & Eggs',
+  // null = using category default, non-null = product override
+  overrides: {
+    mode: null,
+    shelfLifeDays: null,
+  },
 }
 
 const INITIAL_BATCHES = [
@@ -335,16 +343,136 @@ function EmptyBatches({ onStartAdd }) {
   )
 }
 
-// ——— Tracking Settings ———
+// ——— Tracking Settings (Inheritance-Aware) ———
+
+function SourceLabel({ isOverride, categoryName }) {
+  if (isOverride) {
+    return (
+      <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-gray-800 bg-gray-200 px-1.5 py-0.5 rounded">
+        Custom
+      </span>
+    )
+  }
+  return (
+    <span className="text-[10px] text-gray-400 font-medium">
+      from {categoryName}
+    </span>
+  )
+}
+
+function SettingField({
+  label,
+  isOverride,
+  categoryName,
+  categoryValueLabel,
+  onReset,
+  children,
+}) {
+  return (
+    <div className="group/field py-2.5">
+      <div className="flex items-center justify-between mb-1.5">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-medium text-gray-600">{label}</span>
+          <SourceLabel
+            isOverride={isOverride}
+            categoryName={categoryName}
+          />
+        </div>
+        {isOverride && (
+          <button
+            onClick={onReset}
+            className="text-[10px] text-gray-400 hover:text-gray-600 font-medium transition-colors"
+          >
+            Reset to category
+          </button>
+        )}
+      </div>
+
+      {children}
+
+      {isOverride && (
+        <div className="mt-1.5 flex items-center gap-1.5">
+          <div className="w-3 border-t border-dashed border-gray-300" />
+          <span className="text-[10px] text-gray-400">
+            {categoryName} default: {categoryValueLabel}
+          </span>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function ModeToggle({ value, onChange }) {
+  return (
+    <div className="flex gap-1 bg-gray-100 rounded-lg p-0.5 w-fit">
+      {['auto', 'manual'].map((m) => (
+        <button
+          key={m}
+          onClick={() => onChange(m)}
+          className={`text-xs font-medium px-3 py-1 rounded-md transition-all ${
+            value === m
+              ? 'bg-white text-gray-900 shadow-sm'
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          {m.charAt(0).toUpperCase() + m.slice(1)}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+function ShelfLifeInput({ value, onChange }) {
+  return (
+    <div className="flex items-center gap-2">
+      <input
+        type="number"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-16 border border-gray-200 rounded-lg px-2.5 py-1 text-sm text-gray-900 focus:outline-none focus:border-gray-400 focus:ring-1 focus:ring-gray-200 transition-colors"
+        min="1"
+      />
+      <span className="text-xs text-gray-500">days</span>
+    </div>
+  )
+}
+
 function TrackingSettings({
-  mode,
-  shelfLife,
-  categoryRule,
-  onChangeMode,
-  onChangeShelfLife,
+  categoryDefaults,
+  productOverrides,
+  onOverrideMode,
+  onOverrideShelfLife,
+  onResetMode,
+  onResetShelfLife,
+  onUpdateCategoryMode,
+  onUpdateCategoryShelfLife,
 }) {
   const [isOpen, setIsOpen] = useState(false)
-  const [editShelfLife, setEditShelfLife] = useState(String(shelfLife))
+  const [editingCategory, setEditingCategory] = useState(false)
+  const [catModeEdit, setCatModeEdit] = useState(categoryDefaults.mode)
+  const [catShelfEdit, setCatShelfEdit] = useState(
+    String(categoryDefaults.shelfLifeDays),
+  )
+
+  const effectiveMode = productOverrides.mode ?? categoryDefaults.mode
+  const effectiveShelfLife =
+    productOverrides.shelfLifeDays ?? categoryDefaults.shelfLifeDays
+  const hasAnyOverride =
+    productOverrides.mode !== null || productOverrides.shelfLifeDays !== null
+
+  const handleStartEditCategory = () => {
+    setCatModeEdit(categoryDefaults.mode)
+    setCatShelfEdit(String(categoryDefaults.shelfLifeDays))
+    setEditingCategory(true)
+  }
+
+  const handleSaveCategory = () => {
+    onUpdateCategoryMode(catModeEdit)
+    onUpdateCategoryShelfLife(
+      parseInt(catShelfEdit) || categoryDefaults.shelfLifeDays,
+    )
+    setEditingCategory(false)
+  }
 
   return (
     <div className="px-5 py-3">
@@ -352,57 +480,171 @@ function TrackingSettings({
         className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 font-medium transition-colors"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <span>{isOpen ? '▾' : '▸'}</span>
+        <span className="text-[10px]">{isOpen ? '▾' : '▸'}</span>
         Tracking settings
+        {hasAnyOverride && (
+          <span className="ml-0.5 w-1.5 h-1.5 rounded-full bg-gray-900 inline-block" />
+        )}
       </button>
 
       {isOpen && (
-        <div className="mt-3 pl-0.5 space-y-3">
-          <div className="flex items-center gap-3">
-            <span className="text-xs text-gray-500 w-24">Mode</span>
-            <div className="flex gap-1 bg-gray-100 rounded-lg p-0.5">
-              {['auto', 'manual'].map((m) => (
-                <button
-                  key={m}
-                  onClick={() => onChangeMode(m)}
-                  className={`text-xs font-medium px-3 py-1 rounded-md transition-all ${
-                    mode === m
-                      ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-500 hover:text-gray-700'
-                  }`}
-                >
-                  {m.charAt(0).toUpperCase() + m.slice(1)}
-                </button>
-              ))}
+        <div className="mt-3 space-y-0">
+          {/* ——— Product-Level Settings ——— */}
+          <div className="pb-2">
+            <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-0.5">
+              This product
             </div>
+
+            {/* Mode */}
+            <SettingField
+              label="Mode"
+              isOverride={productOverrides.mode !== null}
+              categoryName={categoryDefaults.name}
+              categoryValueLabel={
+                categoryDefaults.mode.charAt(0).toUpperCase() +
+                categoryDefaults.mode.slice(1)
+              }
+              onReset={onResetMode}
+            >
+              <ModeToggle
+                value={effectiveMode}
+                onChange={(val) => {
+                  if (val === categoryDefaults.mode) {
+                    onResetMode()
+                  } else {
+                    onOverrideMode(val)
+                  }
+                }}
+              />
+            </SettingField>
+
+            {/* Shelf life — only in auto mode */}
+            {effectiveMode === 'auto' && (
+              <SettingField
+                label="Shelf life"
+                isOverride={productOverrides.shelfLifeDays !== null}
+                categoryName={categoryDefaults.name}
+                categoryValueLabel={`${categoryDefaults.shelfLifeDays} days`}
+                onReset={onResetShelfLife}
+              >
+                <ShelfLifeInput
+                  value={String(effectiveShelfLife)}
+                  onChange={(val) => {
+                    const num = parseInt(val)
+                    if (!isNaN(num)) {
+                      if (num === categoryDefaults.shelfLifeDays) {
+                        onResetShelfLife()
+                      } else {
+                        onOverrideShelfLife(num)
+                      }
+                    }
+                  }}
+                />
+              </SettingField>
+            )}
+
+            {/* Reset all */}
+            {hasAnyOverride && (
+              <div className="pt-1 pb-1">
+                <button
+                  onClick={() => {
+                    onResetMode()
+                    onResetShelfLife()
+                  }}
+                  className="text-[11px] text-gray-400 hover:text-gray-600 font-medium transition-colors"
+                >
+                  ↩ Reset all to {categoryDefaults.name} defaults
+                </button>
+              </div>
+            )}
           </div>
 
-          {mode === 'auto' && (
-            <>
-              <div className="flex items-center gap-3">
-                <span className="text-xs text-gray-500 w-24">Shelf life</span>
+          <div className="border-t border-dashed border-gray-200" />
+
+          {/* ——— Category-Level Settings ——— */}
+          <div className="pt-3">
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">
+                {categoryDefaults.name} category defaults
+              </div>
+              {!editingCategory ? (
+                <button
+                  onClick={handleStartEditCategory}
+                  className="text-[10px] text-gray-400 hover:text-gray-600 font-medium transition-colors"
+                >
+                  Edit →
+                </button>
+              ) : (
                 <div className="flex items-center gap-2">
-                  <input
-                    type="number"
-                    value={editShelfLife}
-                    onChange={(e) => setEditShelfLife(e.target.value)}
-                    onBlur={() =>
-                      onChangeShelfLife(parseInt(editShelfLife) || shelfLife)
-                    }
-                    className="w-16 border border-gray-200 rounded-lg px-2.5 py-1 text-sm text-gray-900 focus:outline-none focus:border-gray-400 focus:ring-1 focus:ring-gray-200"
-                    min="1"
-                  />
-                  <span className="text-xs text-gray-500">days</span>
+                  <button
+                    onClick={handleSaveCategory}
+                    className="text-[10px] font-semibold text-gray-900 bg-gray-200 hover:bg-gray-300 px-2 py-0.5 rounded transition-colors"
+                  >
+                    Save
+                  </button>
+                  <button
+                    onClick={() => setEditingCategory(false)}
+                    className="text-[10px] text-gray-400 hover:text-gray-600 font-medium transition-colors"
+                  >
+                    Cancel
+                  </button>
                 </div>
+              )}
+            </div>
+
+            {!editingCategory ? (
+              <div className="bg-gray-50 rounded-lg px-3.5 py-2.5">
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-gray-500">Mode</span>
+                    <span className="text-xs font-medium text-gray-700">
+                      {categoryDefaults.mode.charAt(0).toUpperCase() +
+                        categoryDefaults.mode.slice(1)}
+                    </span>
+                  </div>
+                  {categoryDefaults.mode === 'auto' && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-gray-500">Shelf life</span>
+                      <span className="text-xs font-medium text-gray-700">
+                        {categoryDefaults.shelfLifeDays} days
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <p className="text-[10px] text-gray-400 mt-2 leading-relaxed">
+                  Applies to all {categoryDefaults.name} products without custom
+                  overrides.
+                </p>
               </div>
-              <div className="flex items-center gap-3">
-                <span className="text-xs text-gray-500 w-24">
-                  Inherited from
-                </span>
-                <Badge>{categoryRule} category</Badge>
+            ) : (
+              <div className="bg-gray-50 rounded-lg px-3.5 py-3 space-y-3 border border-gray-200">
+                <div>
+                  <div className="text-[10px] text-gray-500 font-medium mb-1.5">
+                    Mode
+                  </div>
+                  <ModeToggle
+                    value={catModeEdit}
+                    onChange={setCatModeEdit}
+                  />
+                </div>
+                {catModeEdit === 'auto' && (
+                  <div>
+                    <div className="text-[10px] text-gray-500 font-medium mb-1.5">
+                      Default shelf life
+                    </div>
+                    <ShelfLifeInput
+                      value={catShelfEdit}
+                      onChange={setCatShelfEdit}
+                    />
+                  </div>
+                )}
+                <p className="text-[10px] text-gray-400 pt-0.5 leading-relaxed">
+                  ⚠ This updates defaults for all {categoryDefaults.name}{' '}
+                  products without custom overrides.
+                </p>
               </div>
-            </>
-          )}
+            )}
+          </div>
         </div>
       )}
     </div>
@@ -414,15 +656,26 @@ function ProductDetailModal({
   onClose,
   highlightBatchId = null,
   focusAddDate = false,
+  initialOverrides = null,
 }) {
   const [batches, setBatches] = useState(INITIAL_BATCHES)
   const [editingBatchId, setEditingBatchId] = useState(null)
-  const [trackingMode, setTrackingMode] = useState(PRODUCT.trackingMode)
-  const [shelfLife, setShelfLife] = useState(PRODUCT.shelfLifeDays)
   const [highlightedId, setHighlightedId] = useState(highlightBatchId)
   const [addDateExpanded, setAddDateExpanded] = useState(focusAddDate)
 
-  // Clear highlight after 3 seconds
+  // Category defaults (editable from this modal)
+  const [categoryMode, setCategoryMode] = useState(CATEGORY_DEFAULTS.mode)
+  const [categoryShelfLife, setCategoryShelfLife] = useState(
+    CATEGORY_DEFAULTS.shelfLifeDays,
+  )
+
+  // Product-level overrides (null = inheriting from category)
+  const defaults = initialOverrides || PRODUCT.overrides
+  const [overrideMode, setOverrideMode] = useState(defaults.mode)
+  const [overrideShelfLife, setOverrideShelfLife] = useState(
+    defaults.shelfLifeDays,
+  )
+
   useEffect(() => {
     if (highlightedId) {
       const t = setTimeout(() => setHighlightedId(null), 3000)
@@ -491,14 +744,12 @@ function ProductDetailModal({
 
       {/* ——— Scrollable Body ——— */}
       <div className="flex-1 overflow-y-auto">
-        {/* Untracked Alert */}
         <UntrackedAlert
           count={untrackedQty}
           onAdd={handleAddBatch}
           autoExpand={addDateExpanded}
         />
 
-        {/* Batches Section */}
         <div className="px-5 pt-2 pb-1 flex items-center justify-between">
           <div className="flex items-baseline gap-2">
             <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -514,11 +765,7 @@ function ProductDetailModal({
         </div>
 
         {sortedBatches.length === 0 ? (
-          <EmptyBatches
-            onStartAdd={() => {
-              /* the UntrackedAlert handles this */
-            }}
-          />
+          <EmptyBatches onStartAdd={() => {}} />
         ) : (
           <div className="divide-y divide-gray-50">
             {sortedBatches.map((batch) => (
@@ -537,13 +784,22 @@ function ProductDetailModal({
 
         <SectionDivider />
 
-        {/* Tracking Settings */}
         <TrackingSettings
-          mode={trackingMode}
-          shelfLife={shelfLife}
-          categoryRule={PRODUCT.categoryRule}
-          onChangeMode={setTrackingMode}
-          onChangeShelfLife={setShelfLife}
+          categoryDefaults={{
+            name: CATEGORY_DEFAULTS.name,
+            mode: categoryMode,
+            shelfLifeDays: categoryShelfLife,
+          }}
+          productOverrides={{
+            mode: overrideMode,
+            shelfLifeDays: overrideShelfLife,
+          }}
+          onOverrideMode={setOverrideMode}
+          onOverrideShelfLife={setOverrideShelfLife}
+          onResetMode={() => setOverrideMode(null)}
+          onResetShelfLife={() => setOverrideShelfLife(null)}
+          onUpdateCategoryMode={setCategoryMode}
+          onUpdateCategoryShelfLife={setCategoryShelfLife}
         />
       </div>
 
@@ -552,9 +808,7 @@ function ProductDetailModal({
         <span className="text-[11px] text-gray-400">
           {trackedQty} of {PRODUCT.totalStock} units tracked
         </span>
-        <div className="flex items-center gap-2">
-          <SmallButton onClick={onClose}>Close</SmallButton>
-        </div>
+        <SmallButton onClick={onClose}>Close</SmallButton>
       </div>
     </ModalOverlay>
   )
@@ -562,13 +816,13 @@ function ProductDetailModal({
 
 // ——— Demo Harness ———
 export default function ProductDetailModalDemo() {
-  const [modalState, setModalState] = useState(null) // null | 'default' | 'highlighted' | 'addDate'
+  const [modalState, setModalState] = useState(null)
 
   const demos = [
     {
       key: 'default',
       label: 'From product row',
-      sub: 'Default view with all batches',
+      sub: 'Inheriting all category defaults',
     },
     {
       key: 'highlighted',
@@ -579,6 +833,11 @@ export default function ProductDetailModalDemo() {
       key: 'addDate',
       label: 'From "Add expiry date"',
       sub: 'Focused on adding untracked units',
+    },
+    {
+      key: 'overridden',
+      label: 'With custom override',
+      sub: 'Shelf life overridden to 7 days (category: 14)',
     },
   ]
 
@@ -596,7 +855,7 @@ export default function ProductDetailModalDemo() {
             Product Detail Modal
           </h1>
           <p className="text-sm text-gray-500 mt-1">
-            LIFO wireframe — 3 entry points
+            LIFO wireframe — inheritance-aware settings
           </p>
         </div>
 
@@ -632,6 +891,11 @@ export default function ProductDetailModalDemo() {
           onClose={() => setModalState(null)}
           highlightBatchId={modalState === 'highlighted' ? 'b1' : null}
           focusAddDate={modalState === 'addDate'}
+          initialOverrides={
+            modalState === 'overridden'
+              ? { mode: null, shelfLifeDays: 7 }
+              : null
+          }
         />
       )}
     </div>
