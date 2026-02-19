@@ -13,6 +13,7 @@ const sections = [
       { href: "/onboarding-setup-v7", label: "Onboarding Setup V7" },
       { href: "/onboarding-setup-v8", label: "Onboarding Setup V8" },
       { href: "/onboarding-setup-v9", label: "Onboarding Setup V9" },
+      { href: "/onboarding-setup-v10", label: "Onboarding Setup V10" },
     ],
   },
   {
