@@ -25,6 +25,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&family=Fredoka:wght@400;500;600;700&family=Comfortaa:wght@400;500;600;700&family=Quicksand:wght@400;500;600;700&family=Baloo+2:wght@400;500;600;700;800&family=Lilita+One&family=Righteous&family=Bungee&family=Titan+One&family=Concert+One&family=Varela+Round&family=Grandstander:wght@400;500;600;700;800;900&family=Sniglet:wght@400;800&family=Fugaz+One&family=Chewy&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Luckiest+Guy&family=Pacifico&family=Bangers&family=Bubblegum+Sans&family=Leckerli+One&family=Shrikhand&family=Boogaloo&family=Coiny&family=Londrina+Solid:wght@400;900&display=swap"
+          rel="stylesheet"
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

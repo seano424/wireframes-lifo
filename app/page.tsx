@@ -33,6 +33,12 @@ const sections = [
       { href: "/modals/product-modal", label: "Product Modal" },
     ],
   },
+  {
+    title: "Logo Design",
+    items: [
+      { href: "/logo-design", label: "Logo Design" },
+    ],
+  },
 ];
 
 export default function Home() {
